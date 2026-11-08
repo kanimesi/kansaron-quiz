@@ -81,6 +81,56 @@
   .modebar{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
   .modebar button.on{ background:var(--accent); color:#fff; }
   .cardnav{ display:flex; gap:8px; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; }
+
+  /* ==== レイアウト見直し（サマリー／折りたたみ絞り込み／テストバー／管理パネル） ==== */
+  .summary-panel .due-wrap{ margin-top:10px; display:flex; gap:8px; flex-wrap:wrap; }
+  .tool-btn{ font-size:14px; border:1px solid var(--accent); background:#fff; color:var(--accent-dark); border-radius:8px; padding:9px 14px; cursor:pointer; }
+  .tool-btn.primary{ background:var(--accent); color:#fff; }
+  .tool-btn.due-primary{ background:var(--accent); border-color:var(--accent); color:#fff; font-size:15px; font-weight:700; padding:13px 18px; border-radius:10px; }
+  .tool-btn.due-primary.active{ background:var(--accent-dark); border-color:var(--accent-dark); box-shadow:0 0 0 2px #fff inset; }
+  .filter-head{ display:flex; align-items:center; gap:12px; padding:12px 14px; }
+  .filter-toggle{ flex:0 0 auto; padding:11px 18px; border-radius:9px; border:1.5px solid var(--accent); background:#fff; color:var(--accent-dark); font-size:14px; font-weight:700; cursor:pointer; }
+  .filter-toggle:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .filter-summary{ flex:1; min-width:0; font-size:12.5px; color:var(--sub); line-height:1.55; }
+  #filterPanel[hidden]{ display:none!important; }
+  .test-bar{ display:flex; align-items:center; gap:8px; margin-bottom:12px; background:var(--accent-dark); color:#fff; border-radius:12px; padding:10px 12px; box-shadow:0 2px 8px rgba(1,87,155,.3); }
+  .test-bar-text{ flex:1; min-width:0; font-size:13px; font-weight:700; letter-spacing:.02em; }
+  .test-bar button{ flex:0 0 auto; white-space:nowrap; background:#fff; }
+  .panel.mgmt{ background:transparent; box-shadow:none; padding:0; }
+  .panel.mgmt > .panel{ margin-bottom:12px; }
+  .panel.mgmt > .panel:last-child{ margin-bottom:0; }
+  #boardPanel{ box-shadow:none; border:1px solid #b3e5fc; background:#fbfdfe; padding:12px; margin-top:16px; }
+  .reset-row{ display:flex; margin-top:20px; padding-top:16px; border-top:1px solid #cfd8dc; }
+  .reset-row button{ flex:1; color:#b71c1c; border-color:#ef9a9a; padding:11px 14px; }
+  /* ==== 可読性・タップ領域（スマホ優先） ==== */
+  body{ font-size:16px; }
+  header h1{ font-size:19px; }
+  header .meta{ font-size:12.5px; }
+  main{ padding:14px 12px 20px; }
+  .panel{ padding:14px 16px; margin-bottom:14px; border-radius:12px; }
+  .panel h2{ font-size:15px; margin-bottom:10px; }
+  .card{ padding:16px; margin-bottom:14px; border-radius:12px; }
+  .q{ font-size:17px; line-height:1.75; }
+  .ans .a{ font-size:16px; line-height:1.75; }
+  .exp{ font-size:14.5px; line-height:1.75; }
+  .scp{ font-size:14.5px; line-height:1.75; }
+  .quote{ font-size:12.5px; line-height:1.65; }
+  .choice{ font-size:16px; line-height:1.65; padding:13px 14px; margin:8px 0; }
+  .judge button{ width:56px; height:48px; font-size:19px; }
+  .judge .hint{ font-size:13px; }
+  button{ padding:10px 14px; font-size:15px; }
+  .modebar button{ padding:11px 14px; }
+  .cardnav button{ padding:11px 16px; }
+  select,input[type="search"]{ padding:11px; font-size:16px; }
+  label.chk{ font-size:15px; padding:6px 0; margin-top:4px; }
+  label.chk input{ width:20px; height:20px; margin:0; flex:0 0 auto; }
+  .filters{ gap:10px; }
+  .badge{ font-size:12px; padding:3px 9px; }
+  .star{ font-size:26px; padding:2px 6px; }
+  .relchip{ font-size:13.5px; padding:5px 12px; }
+  .stats-grid{ font-size:14px; }
+  .stat b{ font-size:18px; }
+  .small{ font-size:12.5px; }
 </style>
 </head>
 <body>
@@ -91,7 +141,7 @@
 <main>
   <div id="notice"></div>
 
-  <section class="panel" id="statsPanel">
+  <section class="panel" id="statsPanel" data-mgmt="1">
     <h2>学習の記録</h2>
     <div class="stats-grid">
       <div class="stat">初見正答率<b id="stFirst">–</b></div>
@@ -110,6 +160,20 @@
     </div>
   </section>
 
+  <section class="panel summary-panel" id="summaryPanel">
+    <h2>今日のまとめ</h2>
+    <div class="stats-grid">
+      <div class="stat">学習済みの問題<b id="sumDone">–</b></div>
+      <div class="stat">今日の解答数<b id="sumToday">–</b></div>
+      <div class="stat">連続学習日数<b id="sumStreak">–</b></div>
+      <div class="stat">復習期限が来た問題<b id="sumDue">–</b></div>
+    </div>
+    <div class="due-wrap">
+      <button class="tool-btn due-primary" id="btnDueStart">📅 今日の復習（<span id="dueCountBtn">0</span>問）</button>
+      <button class="tool-btn" id="btnResumeTop">▶ 続きから再開</button>
+    </div>
+  </section>
+
   <section class="panel" id="modePanel">
     <h2>学習モード・復習スケジュール</h2>
     <div class="modebar">
@@ -120,12 +184,20 @@
     </div>
     <p class="small" id="dueInfo"></p>
     <div id="testArea" style="display:none"></div>
-    <h2 style="margin-top:12px">章ごとの進捗ボード</h2>
+  </section>
+
+  <section class="panel" id="boardPanel" data-mgmt="1">
+    <h2>章ごとの進捗ボード</h2>
     <p class="small">全10章とも全単位が確定済みのため「章全体完了」と表示しています。</p>
     <div style="overflow-x:auto"><table id="boardTable"><thead><tr><th>章</th><th>状態</th><th>学習済み</th><th>直近正答率</th><th></th></tr></thead><tbody></tbody></table></div>
   </section>
 
-  <section class="panel">
+  <section class="panel filter-head" id="filterHead">
+    <button class="filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="filterPanel">🔍 絞り込み</button>
+    <div class="filter-summary" id="filterSummary"></div>
+  </section>
+
+  <section class="panel" id="filterPanel" hidden>
     <h2>絞り込み</h2>
     <div class="filters">
       <select id="fChapter"><option value="">すべての章</option></select>
@@ -143,16 +215,30 @@
     <p class="small" id="shownCount"></p>
   </section>
 
+  <div class="test-bar" id="testBar" style="display:none">
+    <span class="test-bar-text" id="testBarText">🎲 ミニテスト中　0 / 0 問判定済み</span>
+    <button id="btnTestBarExit" type="button">テストを終了</button>
+  </div>
+
   <div id="cards"></div>
   <div id="cardMode" style="display:none"></div>
 
-  <section class="panel">
+  <section class="panel mgmt" id="managementPanel">
+    <h2>学習管理</h2>
+    <div id="mgmtSlot"></div>
+    <div class="reset-row" id="resetRow">
+      <button id="btnResetAll" type="button">学習履歴をすべて消去（リセット）</button>
+    </div>
+    <p class="small">リセットは学習履歴・ブックマーク・設定をこの端末から消去します。事前にバックアップの書き出しをおすすめします。</p>
+  </section>
+
+  <section class="panel" data-mgmt="1">
     <h2>学習要素別 理解度</h2>
     <p class="small">各問題の直近3回までの結果（○=1・△=0.5・×=0）の平均を、その問題のスコアとし、学習要素ごとに平均したものです。まだ解いていない要素は「未学習」と表示します。</p>
     <div style="overflow-x:auto"><table id="elemTable"><thead><tr><th>学習要素</th><th>理解度</th><th></th></tr></thead><tbody></tbody></table></div>
   </section>
 
-  <section class="panel" id="oldPanel" style="display:none">
+  <section class="panel" id="oldPanel" data-mgmt="1" style="display:none">
     <h2>旧問題の記録</h2>
     <p class="small">現在の問題データに存在しない問題IDの履歴です。履歴自体は保持されますが、上の統計には含めていません。</p>
     <div id="oldList" class="small"></div>
@@ -627,6 +713,13 @@ function buildSectionOptions(){
   $("fStar").addEventListener("change", renderCards);
   renderCards(); renderStats();
 })();
+/* ---------- kansaron redesign: layout hooks ---------- */
+const _origRenderCardsK = renderCards;
+renderCards = function(){
+  _origRenderCardsK();
+  try{ updateFilterSummary(); updateTestLayout(); }catch(e){}
+};
+
 /* ---------- kansaron extensions: wiring ---------- */
 (function init2(){
   for(const id of ["fImportance"]) $(id).addEventListener("change", renderCards);
@@ -648,6 +741,107 @@ function buildSectionOptions(){
   syncModeButtons();
   renderBoard();
   renderCards();
+})();
+/* ---------- kansaron redesign: init3 ---------- */
+let filterOpen = false;
+function updateFilterSummary(){
+  const el = $("filterSummary"); if(!el) return;
+  const parts = [];
+  if(testState) parts.push("ミニテスト中");
+  const chap = $("fChapter").value;
+  if(!chap) parts.push("全章");
+  else{ const c = CHAPTERS.find(x => x.chapter_id === chap); parts.push(c ? ((c.label || "") + " " + (c.title || "")).trim() : "章を選択中"); }
+  const sec = $("fSection").value;
+  if(sec){ let label = sec; const q0 = QUESTIONS.find(q => q.section_id === sec); if(q0 && q0.source_location) label = q0.source_location.split(" ")[0] || sec; parts.push(label); }
+  const typ = $("fType").value; if(typ) parts.push(typ);
+  const imp = $("fImportance").value; if(imp) parts.push("重要度" + imp);
+  const kw = $("fKeyword").value.trim(); if(kw) parts.push("検索「" + kw + "」");
+  const tags = [];
+  if($("fStar").checked) tags.push("☆のみ");
+  if($("fAnki").checked) tags.push("🌑暗記のみ");
+  if($("fKijun").checked) tags.push("法基集参照可のみ");
+  if($("fDue").checked) tags.push("今日の復習のみ");
+  if($("fShuffle").checked) tags.push("シャッフル");
+  if(tags.length) parts.push(tags.join("・"));
+  const n = (currentListCache || []).length;
+  el.textContent = parts.join(" ／ ") + "　—　" + n + "問";
+}
+function updateTestLayout(){
+  const bar = $("testBar"); if(!bar) return;
+  const on = !!testState;
+  bar.style.display = on ? "flex" : "none";
+  if(on){
+    const judged = Object.keys(testState.results || {}).length;
+    $("testBarText").textContent = "🎲 ミニテスト中　" + judged + " / " + testState.queue.length + " 問判定済み";
+  }
+  const fh = $("filterHead"); if(fh) fh.style.display = on ? "none" : "";
+  const fp = $("filterPanel"); if(fp){ if(on){ fp.style.display = "none"; } else { fp.style.display = ""; fp.hidden = !filterOpen; } }
+  const mp = $("managementPanel"); if(mp) mp.style.display = on ? "none" : "";
+  const sp = $("summaryPanel"); if(sp) sp.style.display = on ? "none" : "";
+  const mode = $("modePanel"); if(mode) mode.style.display = on ? "none" : "";
+}
+(function init3(){
+  /* 学習管理パネルへ集約（カードの下） */
+  const slot = $("mgmtSlot");
+  if(slot){
+    for(const el of [...document.querySelectorAll("[data-mgmt]")]){
+      el.classList.add("panel");
+      el.removeAttribute("data-mgmt");
+      slot.appendChild(el);
+    }
+  }
+  /* 絞り込みの折りたたみ */
+  const ft = $("filterToggle"), fp = $("filterPanel");
+  function setFilterOpen(open){
+    filterOpen = !!open;
+    if(fp) fp.hidden = !filterOpen;
+    if(ft) ft.setAttribute("aria-expanded", filterOpen ? "true" : "false");
+  }
+  if(ft) ft.addEventListener("click", () => setFilterOpen(!filterOpen));
+  setFilterOpen(false);
+  /* 今日のまとめ（renderStats 連動: 統計DOMを読み取り専用で写す。計算は既存のまま） */
+  function syncSummary(){
+    const due = dueList().length;
+    $("sumDone").textContent = $("stDone").textContent;
+    $("sumToday").textContent = $("stToday").textContent;
+    $("sumStreak").textContent = $("stStreak").textContent;
+    $("sumDue").textContent = due + " 問";
+    $("dueCountBtn").textContent = due;
+  }
+  const obs = new MutationObserver(syncSummary);
+  for(const id of ["stDone","stToday","stStreak"]) obs.observe($(id), {childList:true, characterData:true, subtree:true});
+  syncSummary();
+  /* 「今日の復習」ボタン: 既存の「今日の復習のみ」フィルタをONにして絞り込む */
+  $("btnDueStart").addEventListener("click", () => {
+    const cb = $("fDue");
+    if(!cb.checked){ cb.checked = true; cb.dispatchEvent(new Event("change")); }
+    else { renderCards(); }
+    $("btnDueStart").classList.add("active");
+    const cardsEl = $("cards");
+    if(cardsEl && cardsEl.scrollIntoView) cardsEl.scrollIntoView({block:"start"});
+  });
+  /* サマリーの「続きから再開」は既存ボタンへ委譲（挙動は従来どおり） */
+  $("btnResumeTop").addEventListener("click", () => { $("btnResume").click(); });
+  /* テストバーの終了ボタン: テスト状態を破棄して通常表示へ（履歴は残る） */
+  $("btnTestBarExit").addEventListener("click", () => {
+    testState = null;
+    $("testArea").style.display = "none";
+    syncModeButtons();
+    renderCards();
+    showNotice("ミニテストを終了しました（判定済みの結果は履歴に保存されています）。");
+  });
+  /* 学習履歴のリセット（確認付き。新規追加機能） */
+  $("btnResetAll").addEventListener("click", () => {
+    if(!confirm("学習履歴・ブックマーク・設定をすべて消去します。よろしいですか？")) return;
+    if(!confirm("本当に消去しますか？この操作は取り消せません。")) return;
+    localStorage.removeItem(HISTORY_KEY);
+    localStorage.removeItem(STORE_KEY);
+    location.reload();
+  });
+  /* フィルタ変更時に「今日の復習」ボタンの強調を解除（fDue が外れた場合） */
+  $("fDue").addEventListener("change", () => { if(!$("fDue").checked) $("btnDueStart").classList.remove("active"); });
+  updateFilterSummary();
+  updateTestLayout();
 })();
 </script>
 </body>
