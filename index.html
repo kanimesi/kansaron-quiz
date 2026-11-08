@@ -593,7 +593,8 @@ document.addEventListener("click", e => {
   }
   if(t.dataset.toggle){
     store.settings.lastQid = t.dataset.toggle; saveJSON(STORE_KEY, store);
-    const el = $("ans-" + t.dataset.toggle);
+    const card = t.closest(".card");
+    const el = card ? card.querySelector(".ans") : $("ans-" + t.dataset.toggle);
     const open = el.classList.toggle("open");
     t.textContent = open ? "解答・解説を隠す" : "解答・解説を表示";
   }
