@@ -131,6 +131,14 @@
   .stats-grid{ font-size:14px; }
   .stat b{ font-size:18px; }
   .small{ font-size:12.5px; }
+
+  /* ==== 1問ずつモード: ページャバー ==== */
+  .pagernav{ display:flex; align-items:stretch; gap:8px; margin-bottom:10px; }
+  .pagernav.bottom{ margin:14px 0 4px; }
+  .pagernav button{ flex:1; font-size:17px; font-weight:700; padding:14px 10px; border-radius:12px; border:1.5px solid var(--accent); background:#fff; color:var(--accent-dark); cursor:pointer; }
+  .pagernav button.next{ background:var(--accent); color:#fff; }
+  .pagernav button:disabled{ opacity:.35; cursor:default; }
+  .pagernav .pos{ flex:0 0 auto; display:flex; align-items:center; font-size:14px; font-weight:700; color:var(--accent-dark); padding:0 4px; white-space:nowrap; }
 </style>
 </head>
 <body>
@@ -177,8 +185,8 @@
   <section class="panel" id="modePanel">
     <h2>学習モード・復習スケジュール</h2>
     <div class="modebar">
-      <button id="btnModeList" class="on">一問一答（一覧）</button>
-      <button id="btnModeCard">カード</button>
+      <button id="btnModeList" class="on">📋 一覧</button>
+      <button id="btnModeCard">▶ 1問ずつ</button>
       <button id="btnResume">続きから再開</button>
       <button id="btnTest">ミニテスト10問</button>
     </div>
@@ -571,7 +579,9 @@ function renderCards(){
     if(store.settings.cardQid){ const i = list.findIndex(q => q.id === store.settings.cardQid); if(i >= 0) pos = i; }
     store.settings.cardPos = pos;
     const q = list[pos];
-    cm.innerHTML = "<div class='cardnav'><button data-cardnav='prev'>← 前へ</button><span class='small'>" + (pos+1) + " / " + list.length + " 問目（カードモード：タップで解答を開き ○△× を付けると次へ進みます）</span><button data-cardnav='next'>次へ →</button></div>" + buildCard(q);
+    const total = list.length;
+    const navHtml = (cls) => "<div class='pagernav " + cls + "'><button data-cardnav='prev'" + (pos <= 0 ? " disabled" : "") + ">← 前の問題</button><span class='pos'>" + (pos+1) + " / " + total + " 問</span><button class='next' data-cardnav='next'" + (pos >= total-1 ? " disabled" : "") + ">次の問題 →</button></div>";
+    cm.innerHTML = navHtml("top") + "<p class='small'>1問ずつモード：解答を開いて ○△× を付けると自動で次へ進みます。「次の問題」でも移動できます。</p>" + buildCard(q) + navHtml("bottom");
     return;
   }
   $("cardMode").style.display = "none";
